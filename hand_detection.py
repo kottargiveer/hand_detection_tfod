@@ -136,11 +136,10 @@ if __name__ == '__main__':
             # Run image through tensorflow graph
             boxes, scores, classes = detector_utils.detect_objects(frame_np, detection_graph, sess)
             
-            #Line_Position2=orien_lines.drawsafelines(frame,Orientation,Line_Perc1,Line_Perc2)
+            Line_Position2=orien_lines.drawsafelines(frame,Orientation,Line_Perc1,Line_Perc2)
             # Draw bounding boxeses and text
             #a,b=detector_utils.draw_box_on_image(num_hands_detect, score_thresh, scores, boxes, classes, im_width, im_height, frame,Line_Position2,Orientation)
-            a, b = detector_utils.draw_box_on_image(num_hands_detect, score_thresh, scores, boxes, classes, im_width,
-                                                    im_height, frame_np)
+            a, b = detector_utils.draw_box_on_image(num_hands_detect, score_thresh, scores, boxes, classes, im_width,im_height, frame_np)
             lst1.append(a)
             lst2.append(b)
             no_of_time_hand_detected=no_of_time_hand_crossed=0

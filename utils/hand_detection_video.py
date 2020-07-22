@@ -88,17 +88,35 @@ if __name__ == '__main__':
     os.mkdir("frames_output")
 
     # specify path to video
-    video = 'C:\\Users\\veeresh.k\\Downloads\\mask_no_masksample\\demo_video.mp4'
+    video = "sample.mp4"
 
     # capture video
-    vs = cv2.VideoCapture(video)
+    cap = cv2.VideoCapture(video)
     cnt = 0
 
     # Check if video file is opened successfully
-    if (vs.isOpened() == False):
+    if (cap.isOpened() == False):
         print("Error opening video stream or file")
 
+    ret, first_frame = cap.read()
 
+    # Read until video is completed
+    while (cap.isOpened()):
+
+        # Capture frame-by-frame
+        ret, frame = cap.read()
+
+        if ret == True:
+
+            # save each frame to folder
+            cv2.imwrite('frames/' + str(cnt) + '.png', frame)
+            cnt = cnt + 1
+            if (cnt == 750):
+                break
+
+        # Break the loop
+        else:
+            break
     # Detection confidence threshold to draw bounding box
     score_thresh = 0.80
 
@@ -140,27 +158,13 @@ if __name__ == '__main__':
 
     try:
         # Read until video is completed
-        while (vs.isOpened()):
-
-            ret, frame = vs.read()
-
-            if ret == True:
-
-                # save each frame to folder
-                cv2.imwrite('frames/' + str(cnt) + '.png', frame)
-                cnt = cnt + 1
-                if (cnt == 750):
-                    break
-
-            # Break the loop
-            else:
-                break
 
         names = os.listdir('frames/')
         names.sort(key=lambda f: int(re.sub('\D', '', f)))
 
         for i in range(len(names)):
-            frame = cv2.imread('frames/' + names[i] )
+
+            frame = cv2.imread('frames/' + names[i])
             frame = np.array(frame)
             # frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 

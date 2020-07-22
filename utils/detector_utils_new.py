@@ -51,22 +51,13 @@ def load_inference_graph_new():
 
 
 # def draw_box_on_image(num_hands_detect, score_thresh, scores, boxes, classes, im_width, im_height, image_np,Line_Position2,Orientation):
-def draw_box_on_image_new(num_hands_detect, score_thresh, scores, boxes, classes, im_width, im_height, image_np):
+def draw_box_on_image_new(num_person_detect, score_thresh, scores, boxes, classes, im_width, im_height, image_np):
     # Determined using a piece of paper of known length, code can be found in distance to camera
     focalLength = 875
     # The average width of a human hand (inches) http://www.theaveragebody.com/average_hand_size.php
     # added an inch since thumb is not included
     avg_width = 4.0
     # To more easily differetiate distances and detected bboxes
-
-    print("then num_hands_detect: ",num_hands_detect)
-    print("The score_thresh is : ", score_thresh)
-    print("The scores is : ", scores)
-    print("The boxes is : ", boxes)
-    print("The classes is : ", classes)
-    print("The im_width is : ", im_width)
-    print("The im_height is : ", im_height)
-    print("The image_np is : ", image_np)
 
     global a, b
     hand_cnt = 0
@@ -94,22 +85,38 @@ def draw_box_on_image_new(num_hands_detect, score_thresh, scores, boxes, classes
 
             (left, right, top, bottom) = (boxes[i][1] * im_width, boxes[i][3] * im_width,
                                           boxes[i][0] * im_height, boxes[i][2] * im_height)
-            print("left: ",left)
-            print("right: ", right)
-            print("top: ", top)
-            print("left: ", bottom)
 
             p1 = (int(left), int(top))
             p2 = (int(right), int(bottom))
+
+            # compute center
+            x_center = int((left + right) / 2)
+            y_center = int(bottom)
+            center = (x_center, y_center)
+
+            ind = np.where(classes == 0)[0]
+            #person = bbox[ind]
 
             dist = distance_to_camera(avg_width, focalLength, int(right - left))
 
             if dist:
                 hand_cnt = hand_cnt + 1
-            cv2.rectangle(image_np, p1, p2, color, 3, 1)
 
-            cv2.putText(image_np, 'description ' + str(i) + ': ' + id, (int(left), int(top) - 5),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+            # void cv::rectangle  (   InputOutputArray    img,
+            # Point   pt1,
+            # Point   pt2,
+            # const Scalar &  color,
+            # int     thickness = 1,
+            # int     lineType = LINE_8,
+            # int     shift = 0
+            # )
+            cv2.rectangle(image_np, p1, p2, color, 2, 1)
+
+            #center of the frame
+            cv2.circle(image_np, center, 5, (255, 0, 0), -1)
+            cv2.putText(image_np, str(num_person_detect), center, cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+
+            cv2.putText(image_np, 'description ' + str(i) + ': ' + id, (int(left), int(top) - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
 
             #cv2.putText(image_np, 'confidence: ' + str("{0:.2f}".format(scores[i])), (int(left), int(top) - 20),cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
@@ -151,7 +158,7 @@ def detect_objects_new(num_person_detect, score_thresh, image_np, detection_grap
     classes = detection_graph.get_tensor_by_name('detection_classes:0')
     num_detections = detection_graph.get_tensor_by_name('num_detections:0')
     # Actual detection.
-    (boxes, scores, classes, num_detections) = sess.run([boxes, scores, classes, num_detections],feed_dict={image_tensor: image_np_expanded})
+    (boxes, scores, classes, num) = sess.run([boxes, scores, classes, num_detections],feed_dict={image_tensor: image_np_expanded})
     """# Visualization of the results of a detection.
     vis_util.visualize_boxes_and_labels_on_image_array(
         image_np,
@@ -165,6 +172,7 @@ def detect_objects_new(num_person_detect, score_thresh, image_np, detection_grap
     return image_np
     """
     im_height, im_width = image_np.shape[:2]
-
-    image_np_new = draw_box_on_image_new(num_person_detect, score_thresh, np.squeeze(scores), np.squeeze(boxes), np.squeeze(classes), im_width, im_height, image_np)
+    print("sending the frame for drawing")
+    image_np_new = draw_box_on_image_new(num, score_thresh, np.squeeze(scores), np.squeeze(boxes), np.squeeze(classes), im_width, im_height, image_np)
+    print("frame after drawing")
     return image_np_new
