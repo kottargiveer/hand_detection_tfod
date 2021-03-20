@@ -28,7 +28,7 @@ imageio==2.6.1
 imutils==0.5.3
 incremental==16.10.1
 jedi==0.14.1
-Jinja2==2.10.1
+Jinja2==2.11.3
 joblib==0.13.2
 jsonschema==3.0.2
 Keras-Applications==1.0.8
